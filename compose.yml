@@ -1,0 +1,201 @@
+services:
+
+  # =======================
+  # AUTH SERVICE
+  # =======================
+  auth_app:
+    build: ./authentication
+    container_name: auth_app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@auth_db:5432/auth
+    volumes:
+      - ./auth:/app
+    depends_on:
+      auth_db:
+        condition: service_healthy
+    env_file:
+      - ./auth/app/configs/.env
+    networks:
+      - shared_network
+
+  auth_db:
+    image: postgres:17.4
+    container_name: auth_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auth
+    ports:
+      - "5432:5432"
+    volumes:
+      - auth_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 30s
+      retries: 5
+    env_file:
+      - ./auth/app/configs/.env
+    networks:
+      - shared_network
+
+  auth_redis:
+    image: redis:7.4.2
+    ports:
+      - "6379:6379"
+    volumes:
+      - "./auth/healthchecks:/healthchecks"
+    healthcheck:
+      test: /healthchecks/redis.sh
+      interval: "5s"
+    networks:
+      - shared_network
+    env_file:
+      - ./auth/app/configs/.env
+
+  # =======================
+  # MLM SERVICE
+  # =======================
+  mlm_app:
+    build: ./mlm_service
+    container_name: mlm_app
+    ports:
+      - "11000:11000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@mlm_db:5432/mlm
+    volumes:
+      - ./mlm:/app
+    depends_on:
+      mlm_db:
+        condition: service_healthy
+      mlm_redis:
+        condition: service_healthy
+    env_file:
+      - ./mlm/app/configs/.env
+    networks:
+      - shared_network
+
+  mlm_db:
+    image: postgres:17.4
+    container_name: mlm_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mlm
+    ports:
+      - "5434:5432"
+    volumes:
+      - mlm_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 30s
+      retries: 5
+    env_file:
+      - ./mlm/app/configs/.env
+    networks:
+      - shared_network
+
+  mlm_redis:
+    image: redis:7.4.2
+    ports:
+      - "6380:6379"
+    volumes:
+      - "./mlm/healthchecks:/healthchecks"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - shared_network
+    env_file:
+      - ./mlm/app/configs/.env
+
+  # =======================
+  # URL SHORTENER SERVICE
+  # =======================
+  url_shortener_app:
+    build: ./url_shortener
+    container_name: url_shortener_app
+    ports:
+      - "9000:9000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@url_shortener_db:5432/url_shortener
+    volumes:
+      - ./url_shortener:/app
+    depends_on:
+      url_shortener_db:
+        condition: service_healthy
+    env_file:
+      - ./url_shortener/.env
+    networks:
+      - shared_network
+
+  url_shortener_db:
+    image: postgres:17.4
+    container_name: url_shortener_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: url_shortener
+    ports:
+      - "5433:5432"
+    volumes:
+      - url_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 30s
+      retries: 5
+    env_file:
+      - ./url_shortener/.env
+    networks:
+      - shared_network
+
+  # =======================
+  # GATEWAY SERVICE
+  # =======================
+  mlm_gateway_app:
+    build: ./mlm_api_gateway
+    container_name: mlm_gateway_app
+    ports:
+      - "10000:10000"
+    volumes:
+      - ./gateway:/app
+    depends_on:
+      - auth_app
+      - mlm_app
+      - url_shortener_app
+      - mlm_gateway_redis
+    env_file:
+      - ./gateway/app/configs/.env
+    networks:
+      - shared_network
+
+  mlm_gateway_redis:
+    image: redis:7.4.2
+    ports:
+      - "6381:6379"
+    volumes:
+      - "./gateway/healthchecks:/healthchecks"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - shared_network
+    env_file:
+      - ./gateway/app/configs/.env
+
+volumes:
+  auth_pgdata:
+  mlm_pgdata:
+  url_pgdata:
+
+networks:
+  shared_network:
+    driver: bridge
