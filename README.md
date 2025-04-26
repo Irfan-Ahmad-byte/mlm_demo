@@ -124,7 +124,7 @@ Make sure `flutter doctor` is ✅ and your device/emulator is running.
 
 ## 📜 License
 
-Built by **Irfan Ahmad** as a demo project for full-stack microservices + mobile app integration.
+Built by **[Irfan Ahmad](https://github.com/irfan-ahmad-byte)** as a demo project for full-stack microservices + mobile app integration.
 
 For questions, collaboration, or improvements — feel free to reach out!
 
