@@ -22,17 +22,17 @@ Each microservice runs as an isolated FastAPI app on Docker with its own Postgre
 
 ```
 .
-├── auth/               # Authentication microservice
-├── mlm/                # MLM tree and bonus microservice
+├── authentication/               # Authentication microservice
+├── mlm_service/                # MLM tree and bonus microservice
 ├── url_shortener/      # URL shortening microservice
-├── gateway/            # API gateway for frontend
-├── frontend/           # 📱 Flutter frontend app
+├── mlm_api_gateway/            # API gateway for frontend
+├── mlm_demo_frontend_flutter/           # 📱 Flutter frontend app
 │   ├── lib/
 │   ├── android/
 │   ├── ios/
 │   └── pubspec.yaml
 ├── frontend/mlm_demo.apk  # Android build of the app (APK)
-├── docker-compose.yml     # Microservices orchestration
+├── compose.yml     # Microservices orchestration
 ```
 
 ---
