@@ -8,11 +8,11 @@
 
 This project contains the following services:
 
-- **Authentication Service** – Handles user registration, login, verification, and tokens
-- **MLM Service** – Manages MLM trees, spillover logic, bonus distribution, rank evaluations
-- **URL Shortener Service** – Lightweight service to generate and resolve short URLs
-- **Gateway API** – Central entry point for frontend clients; routes to appropriate microservices
-- **Flutter Frontend App** – Cross-platform mobile app that connects via Gateway
+- **[Authentication Service](https://github.com/irfan-ahmad-byte/jwt_authentication_service)** – Handles user registration, login, verification, and tokens
+- **[MLM Service](https://github.com/irfan-ahmad-byte/mlm_service)** – Manages MLM trees, spillover logic, bonus distribution, rank evaluations
+- **[URL Shortener Service](https://github.com/irfan-ahmad-byte/url_shortener)** – Lightweight service to generate and resolve short URLs
+- **[Gateway API](https://github.com/irfan-ahmad-byte/mlm_api_gateway)** – Central entry point for frontend clients; routes to appropriate microservices
+- **[Flutter Frontend App](https://github.com/irfan-ahmad-byte/mlm_demo_frontend_flutter)** – Cross-platform mobile app that connects via Gateway
 
 Each microservice runs as an isolated FastAPI app on Docker with its own PostgreSQL database and optional Redis cache.
 
